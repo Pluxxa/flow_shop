@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'flow_shop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'your_db_name',  # Имя вашей базы данных
-        'USER': 'your_db_user',  # Имя пользователя PostgreSQL
-        'PASSWORD': 'your_db_password',  # Пароль пользователя
-        'HOST': 'localhost',  # Адрес хоста
-        'PORT': '5432',  # Порт PostgreSQL, по умолчанию 5432
+        'NAME': 'flow_shop',
+        'USER': 'pluxa',
+        'PASSWORD': 'your_password',  # Укажите ваш пароль
+        'HOST': 'localhost',
+        'PORT': '5432',  # По умолчанию порт PostgreSQL
     }
 }
 
