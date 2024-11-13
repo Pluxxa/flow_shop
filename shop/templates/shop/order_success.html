@@ -1,0 +1,8 @@
+<!-- shop/templates/shop/order_success.html -->
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<h2>Ваш заказ успешно оформлен!</h2>
+<p>Спасибо за покупку. Мы свяжемся с вами для подтверждения заказа.</p>
+<a href="{% url 'product_list' %}">Вернуться в каталог</a>
+{% endblock %}

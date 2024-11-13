@@ -1,0 +1,23 @@
+<!-- shop/templates/shop/cart.html -->
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<h2>Ваша корзина</h2>
+
+{% if cart_items %}
+    <ul>
+        {% for item in cart_items %}
+            <li>{{ item.product.name }} - {{ item.quantity }} шт. - {{ item.product.price }} ₽</li>
+        {% endfor %}
+    </ul>
+    <p>Итого: {{ total_price }} ₽</p>
+
+    <!-- Кнопка для оформления заказа -->
+    <form method="post" action="{% url 'cart' %}">
+        {% csrf_token %}
+        <button type="submit">Оформить заказ</button>
+    </form>
+{% else %}
+    <p>Ваша корзина пуста.</p>
+{% endif %}
+{% endblock %}

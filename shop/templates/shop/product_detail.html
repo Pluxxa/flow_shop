@@ -1,0 +1,29 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+  <h1>{{ product.name }}</h1>
+  <!-- Информация о продукте, такая как изображение, цена и описание -->
+
+  <h2>Отзывы</h2>
+  {% if product.reviews.exists %}
+    {% for review in product.reviews.all %}
+      <div class="review">
+        <strong>Пользователь: {{ review.user.username }}</strong><br>
+        Оценка: {{ review.rating }}<br>
+        {{ review.text }}<br>
+        <small>Добавлено: {{ review.created_at }}</small>
+      </div>
+      <hr>
+    {% endfor %}
+  {% else %}
+    <p>Отзывов пока нет.</p>
+  {% endif %}
+  <p>Средний рейтинг: {{ product.average_rating|default:"Нет оценок" }}</p>
+  {% if user.is_authenticated %}
+    <form action="{% url 'add_to_cart' product.id %}" method="post">
+      {% csrf_token %}
+      <a href="{% url 'add_review' product.id %}">Оставить отзыв</a>
+    </form>
+  {% endif %}
+
+{% endblock %}

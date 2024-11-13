@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Shop{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'product_list' %}">Catalog</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'cart' %}">Корзина</a></li>
+                    <li><a href="{% url 'account' %}">Аккаунт</a></li>
+                    <li><a href="{% url 'logout' %}">Выход</a></li>
+                {% else %}
+                    <li><a href="{% url 'register' %}">Регистрация</a></li>
+                    <li><a href="{% url 'login' %}">Вход</a></li>
+                {% endif %}
+                <!-- Добавьте другие страницы, если нужно -->
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

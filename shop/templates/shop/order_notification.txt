@@ -1,0 +1,7 @@
+Новый заказ:
+Букет: {{ order.product.name }}
+Цена: {{ order.product.price }}
+Количество: {{ order.quantity }}
+Адрес доставки: {{ order.delivery_address }}
+Дата заказа: {{ order.created_at }}
+Комментарий: {{ order.comment|default:"Отсутствует" }}

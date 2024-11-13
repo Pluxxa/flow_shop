@@ -1,0 +1,10 @@
+{% extends 'shop/base.html' %}
+
+{% block content %}
+<h2>Заполните профиль</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+</form>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Каталог товаров</h1>
+<ul>
+    {% for product in products %}
+        <div class="product">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <p>Цена: {{ product.price }} ₽</p>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+            {% if user.is_authenticated %}
+                <form action="{% url 'add_to_cart' product.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Добавить в корзину</button>
+                </form>
+            {% else %}
+                <a href="{% url 'quick_buy' product.id %}">Быстрая покупка</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</ul>
+{% endblock %}
