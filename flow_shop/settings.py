@@ -79,8 +79,12 @@ WSGI_APPLICATION = 'flow_shop.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'your_db_name',  # Имя вашей базы данных
+        'USER': 'your_db_user',  # Имя пользователя PostgreSQL
+        'PASSWORD': 'your_db_password',  # Пароль пользователя
+        'HOST': 'localhost',  # Адрес хоста
+        'PORT': '5432',  # Порт PostgreSQL, по умолчанию 5432
     }
 }
 
@@ -136,4 +140,4 @@ TELEGRAM_CHAT_ID = '6870044057'
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = 'C:/PyCh/flow_shop/flow_shop/media'
+MEDIA_ROOT = 'C:/PyCh/flow_shop/media'
