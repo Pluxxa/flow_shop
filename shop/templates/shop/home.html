@@ -1,8 +1,13 @@
 {% extends 'shop/base.html' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Главная страница{% endblock %}
 
 {% block content %}
-<h1>Добро пожаловать в наш магазин!</h1>
-<p>Здесь вы найдете лучшие товары по отличным ценам!</p>
+<div class="container text-center my-5">
+    <h1 class="display-4">Добро пожаловать в наш магазин!</h1>
+    <p class="lead">Здесь вы найдете лучшие товары по отличным ценам!</p>
+    <hr class="my-4">
+    <p class="h4">Хотите что-то купить?</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'product_list' %}" role="button">Перейти в каталог</a>
+</div>
 {% endblock %}

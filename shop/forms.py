@@ -17,7 +17,7 @@ class CustomUserCreationForm(UserCreationForm):
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['product', 'delivery_address']
+        fields = ['product']
 
 
 class UserRegistrationForm(forms.ModelForm):
@@ -52,13 +52,12 @@ class QuickOrderForm(forms.ModelForm):
 
     class Meta:
         model = QuickOrder
-        fields = ['customer_name', 'customer_email', 'customer_phone', 'delivery_address', 'quantity', 'delivery_datetime']
+        fields = ['customer_name', 'customer_email', 'customer_phone', 'delivery_address', 'delivery_datetime']
         labels = {
             'customer_name': 'Имя',
             'customer_email': 'Электронная почта',
             'customer_phone': 'Телефон',
             'delivery_address': 'Адрес доставки',
-            'quantity': 'Количество',
             'delivery_datetime': 'Дата и время доставки',
         }
 

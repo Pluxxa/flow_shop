@@ -2,24 +2,32 @@
 {% load static %}
 
 {% block content %}
-<h1>Каталог товаров</h1>
-<ul>
-    {% for product in products %}
-        <div class="product">
-            <h3>{{ product.name }}</h3>
-            <p>{{ product.description }}</p>
-            <p>Цена: {{ product.price }} ₽</p>
-            <img src="{{ product.image.url }}" alt="{{ product.name }}">
-            <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
-            {% if user.is_authenticated %}
-                <form action="{% url 'add_to_cart' product.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit">Добавить в корзину</button>
-                </form>
-            {% else %}
-                <a href="{% url 'quick_buy' product.id %}">Быстрая покупка</a>
-            {% endif %}
-        </div>
-    {% endfor %}
-</ul>
+<div class="container">
+    <h1 class="my-4">Каталог товаров</h1>
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description }}</p>
+                        <p class="card-text">Цена: {{ product.price }} ₽</p>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-primary">Подробнее</a>
+                            {% if user.is_authenticated %}
+                                <form action="{% url 'add_to_cart' product.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Добавить в корзину</button>
+                                </form>
+                            {% else %}
+                                <a href="{% url 'quick_buy' product.id %}" class="btn btn-warning">Быстрая покупка</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

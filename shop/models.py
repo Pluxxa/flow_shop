@@ -23,15 +23,13 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    quick_order = models.ForeignKey('QuickOrder', on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    delivery_address = models.TextField()
-    status = models.CharField(max_length=50, default="В ожидании")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Заказ {self.id} от {self.user.username}"
+        return f"Товар {self.product.name} в заказе {self.quick_order.id}"
 
 
 class Cart(models.Model):
@@ -61,12 +59,10 @@ class QuickOrder(models.Model):
         ('cart', 'Корзина'),
     ]
 
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     customer_name = models.CharField(max_length=100)
     customer_email = models.EmailField()
     customer_phone = models.CharField(max_length=20)
     delivery_address = models.TextField()
-    quantity = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='accepted')
     order_type = models.CharField(max_length=10, choices=ORDER_TYPE_CHOICES, default='cart')
@@ -74,6 +70,10 @@ class QuickOrder(models.Model):
 
     def __str__(self):
         return f"Заказ #{self.id} - {self.customer_name} ({self.get_status_display()})"
+
+    @property
+    def total_price(self):
+        return sum(item.product.price * item.quantity for item in self.items.all())
 
 
 class UserProfile(models.Model):

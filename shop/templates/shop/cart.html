@@ -1,23 +1,41 @@
-<!-- shop/templates/shop/cart.html -->
 {% extends 'shop/base.html' %}
+{% load custom_filters %}
 
 {% block content %}
-<h2>Ваша корзина</h2>
+<div class="container my-4">
+    <h2 class="mb-4">Ваша корзина</h2>
 
-{% if cart_items %}
-    <ul>
-        {% for item in cart_items %}
-            <li>{{ item.product.name }} - {{ item.quantity }} шт. - {{ item.product.price }} ₽</li>
-        {% endfor %}
-    </ul>
-    <p>Итого: {{ total_price }} ₽</p>
+    {% if cart_items %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Продукт</th>
+                    <th>Количество</th>
+                    <th>Цена</th>
+                    <th>Итого</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.product.price }} ₽</td>
+                        <td>{{ item.product.price|multiply:item.quantity }} ₽</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <!-- Кнопка для оформления заказа -->
-    <form method="post" action="{% url 'cart' %}">
-        {% csrf_token %}
-        <button type="submit">Оформить заказ</button>
-    </form>
-{% else %}
-    <p>Ваша корзина пуста.</p>
-{% endif %}
+        <p class="lead">Итого: {{ total_price }} ₽</p>
+
+        <!-- Кнопка для оформления заказа -->
+        <form method="post" action="{% url 'cart' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-lg">Оформить заказ</button>
+        </form>
+    {% else %}
+        <p>Ваша корзина пуста.</p>
+    {% endif %}
+</div>
 {% endblock %}

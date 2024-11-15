@@ -1,7 +1,19 @@
-Новый заказ:
-Букет: {{ order.product.name }}
-Цена: {{ order.product.price }}
-Количество: {{ order.quantity }}
+Новый заказ №{{ order.id }}
+
+Имя клиента: {{ order.customer_name }}
+Электронная почта: {{ order.customer_email }}
+Телефон: {{ order.customer_phone }}
 Адрес доставки: {{ order.delivery_address }}
-Дата заказа: {{ order.created_at }}
-Комментарий: {{ order.comment|default:"Отсутствует" }}
+Статус заказа: {{ order.get_status_display }}
+Дата создания: {{ order.created_at|date:"d.m.Y H:i" }}
+
+Позиции заказа:
+(Всего позиций: {{ order.items.count }})
+
+{% for item in order.items.all %}
+- {{ item.product.name }} (Количество: {{ item.quantity }}, Цена: {{ item.product.price }} ₽)
+{% empty %}
+- Нет позиций в заказе
+{% endfor %}
+
+Общая сумма: {{ order.total_price }} ₽

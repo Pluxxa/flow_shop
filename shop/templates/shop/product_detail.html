@@ -1,29 +1,59 @@
 {% extends 'shop/base.html' %}
 
 {% block content %}
-  <h1>{{ product.name }}</h1>
-  <!-- Информация о продукте, такая как изображение, цена и описание -->
+<div class="container">
+    <h1 class="my-4">{{ product.name }}</h1>
 
-  <h2>Отзывы</h2>
-  {% if product.reviews.exists %}
-    {% for review in product.reviews.all %}
-      <div class="review">
-        <strong>Пользователь: {{ review.user.username }}</strong><br>
-        Оценка: {{ review.rating }}<br>
-        {{ review.text }}<br>
-        <small>Добавлено: {{ review.created_at }}</small>
-      </div>
-      <hr>
-    {% endfor %}
-  {% else %}
-    <p>Отзывов пока нет.</p>
-  {% endif %}
-  <p>Средний рейтинг: {{ product.average_rating|default:"Нет оценок" }}</p>
-  {% if user.is_authenticated %}
-    <form action="{% url 'add_to_cart' product.id %}" method="post">
-      {% csrf_token %}
-      <a href="{% url 'add_review' product.id %}">Оставить отзыв</a>
-    </form>
-  {% endif %}
+    <!-- Информация о продукте -->
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ product.image.url }}" class="img-fluid" alt="{{ product.name }}">
+        </div>
+        <div class="col-md-6">
+            <h3>Цена: {{ product.price }} ₽</h3>
+            <p>{{ product.description }}</p>
+            <div class="d-flex justify-content-between">
+                {% if user.is_authenticated %}
+                    <form action="{% url 'add_to_cart' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Добавить в корзину</button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'quick_buy' product.id %}" class="btn btn-warning">Быстрая покупка</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
+    <!-- Отзывы -->
+    <h2 class="my-4">Отзывы</h2>
+    {% if product.reviews.exists %}
+        <div class="reviews">
+            {% for review in product.reviews.all %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Пользователь: {{ review.user.username }}</h5>
+                        <p>Оценка: {{ review.rating }}</p>
+                        <p>{{ review.text }}</p>
+                        <small class="text-muted">Добавлено: {{ review.created_at }}</small>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Отзывов пока нет.</p>
+    {% endif %}
+
+    <!-- Средний рейтинг -->
+    <p class="my-4">
+        <strong>Средний рейтинг: </strong>{{ product.average_rating|default:"Нет оценок" }}
+    </p>
+
+    <!-- Форма добавления отзыва -->
+    {% if user.is_authenticated %}
+        <div class="d-flex justify-content-end">
+            <a href="{% url 'add_review' product.id %}" class="btn btn-primary">Оставить отзыв</a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

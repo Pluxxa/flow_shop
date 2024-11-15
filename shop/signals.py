@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from .models import UserProfile, QuickOrder
 from telegram_bot.bot import send_order_notification, send_order_status_update
 from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync
+
 
 # Вспомогательная функция для запуска асинхронных функций
 def run_async(func):
@@ -29,8 +31,8 @@ def save_user_profile(sender, instance, **kwargs):
 def order_created(sender, instance, created, **kwargs):
     """Обработчик нового заказа для отправки уведомления."""
     if created:
-        # Асинхронный вызов для уведомления о новом заказе
-        run_async(send_order_notification(instance.id))
+        # Выполнение асинхронной задачи в нужном контексте
+        async_to_sync(send_order_notification)(instance.id)
 
 # Обработчик сигнала для обновления статуса заказа
 @receiver(pre_save, sender=QuickOrder)

@@ -1,8 +1,13 @@
-<!-- shop/templates/shop/order_success.html -->
 {% extends 'shop/base.html' %}
 
 {% block content %}
-<h2>Ваш заказ успешно оформлен!</h2>
-<p>Спасибо за покупку. Мы свяжемся с вами для подтверждения заказа.</p>
-<a href="{% url 'product_list' %}">Вернуться в каталог</a>
+<div class="container mt-5">
+    <div class="alert alert-success" role="alert">
+        <h2 class="text-center">Ваш заказ успешно оформлен!</h2>
+        <p class="text-center">Спасибо за покупку. Мы свяжемся с вами для подтверждения заказа.</p>
+    </div>
+    <div class="text-center">
+        <a href="{% url 'product_list' %}" class="btn btn-primary">Вернуться в каталог</a>
+    </div>
+</div>
 {% endblock %}
