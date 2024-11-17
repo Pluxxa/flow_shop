@@ -1,8 +1,10 @@
 from django.contrib import admin
-from .models import Product, Cart, CartItem, Order, QuickOrder
+from .models import Product, Cart, CartItem, Order, QuickOrder, ReportParameter, Report
+from .views import generate_report
 
 # Регистрируем модель Product в админке
 admin.site.register(Product)
+
 
 # Определяем Inline для отображения товаров в заказе
 class OrderInline(admin.TabularInline):
@@ -26,3 +28,22 @@ class QuickOrderAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return True  # Включаем возможность удаления
+
+
+@admin.register(ReportParameter)
+class ReportParameterAdmin(admin.ModelAdmin):
+    list_display = ('name', 'start_date', 'end_date', 'created_at')
+    list_filter = ('start_date', 'end_date')
+    search_fields = ('name',)
+    actions = ['generate_report']
+
+    def generate_report(self, request, queryset):
+        for param in queryset:
+            generate_report(param)
+        self.message_user(request, f"Отчёты для {queryset.count()} параметров успешно созданы.")
+
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('parameter', 'total_orders', 'total_bouquets', 'total_revenue', 'created_at')
+    readonly_fields = ('file', 'total_orders', 'total_bouquets', 'total_revenue')
+    list_filter = ('created_at',)

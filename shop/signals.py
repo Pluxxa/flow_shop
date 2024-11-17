@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
@@ -7,6 +8,7 @@ from telegram_bot.bot import send_order_notification, send_order_status_update
 from asgiref.sync import sync_to_async
 from asgiref.sync import async_to_sync
 
+logger = logging.getLogger(__name__)
 
 # Вспомогательная функция для запуска асинхронных функций
 def run_async(func):
@@ -31,8 +33,14 @@ def save_user_profile(sender, instance, **kwargs):
 def order_created(sender, instance, created, **kwargs):
     """Обработчик нового заказа для отправки уведомления."""
     if created:
-        # Выполнение асинхронной задачи в нужном контексте
-        async_to_sync(send_order_notification)(instance.id)
+        # Ждем, пока связанные элементы заказа не будут полностью доступны
+        if instance.items.exists():
+            async_to_sync(send_order_notification)(instance.id)
+        else:
+            # Отложенная задача для повторной попытки отправки уведомления
+            async_to_sync(asyncio.sleep)(0.5)  # Задержка 0.5 секунды
+            if instance.items.exists():
+                async_to_sync(send_order_notification)(instance.id)
 
 # Обработчик сигнала для обновления статуса заказа
 @receiver(pre_save, sender=QuickOrder)

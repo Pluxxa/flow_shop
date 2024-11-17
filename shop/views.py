@@ -93,7 +93,7 @@ def cart_view(request):
                     product=item.product,
                     quantity=item.quantity
                 )
-
+            asyncio.run(send_order_notification(quick_order.id))
             cart.items.all().delete()  # Очистка корзины
             return redirect('order_success')
         else:
@@ -136,12 +136,18 @@ def quick_buy(request, product_id):
         form = QuickOrderForm(request.POST)
         if form.is_valid():
             order = form.save(commit=False)
-            order.product = product  # Возможно, стоит убрать это, так как QuickOrder теперь не содержит отдельного продукта
-            order.save()
-            send_order_notification(order.id)
-            return redirect('quick_order_success')  # Страница успешного оформления заказа
+            order.save()  # Сохраняем сам заказ сначала
+
+            # Создаем связанный объект Order и связываем с заказом и продуктом
+            Order.objects.create(quick_order=order, product=product, quantity=1)  # Можно задать количество, если нужно
+
+            # Отправляем уведомление о новом заказе
+            asyncio.run(send_order_notification(order.id))
+
+            return redirect('quick_order_success')
     else:
         form = QuickOrderForm()
+
     return render(request, 'shop/quick_buy.html', {'form': form, 'product': product})
 
 def quick_order_success(request):
@@ -235,31 +241,35 @@ def generate_report_view(request):
     return HttpResponse(f"Отчёт за {report.date} успешно создан.")
 
 
-def generate_report():
-    today = timezone.now().date()
+def generate_report(param):
+    # Фильтрация заказов по параметрам
+    orders = QuickOrder.objects.filter(created_at__date__range=(param.start_date, param.end_date))
 
-    # Подсчёт количества заказов и общей выручки за текущий день
-    orders_today = QuickOrder.objects.filter(created_at__date=today)
-    total_orders = orders_today.count()
-    total_revenue = orders_today.aggregate(total=Sum('product__price'))['total'] or 0
+    # Подсчёт статистики
+    total_orders = orders.count()
+    total_bouquets = sum(order.quantity for order in orders)
+    total_revenue = sum(order.total_price for order in orders)
 
-    # Сохранение отчёта в базе данных
-    report, created = OrderReport.objects.get_or_create(
-        date=today,
-        defaults={'total_orders': total_orders, 'total_revenue': total_revenue},
+    # Сохранение отчёта
+    report = Report.objects.create(
+        parameter=param,
+        total_orders=total_orders,
+        total_bouquets=total_bouquets,
+        total_revenue=total_revenue
     )
 
-    # Проверка существования директории "reports" и её создание при необходимости
+    # Генерация CSV-файла
     reports_dir = 'reports'
     if not os.path.exists(reports_dir):
         os.makedirs(reports_dir)
 
-    # Экспорт отчёта в CSV-файл
-    file_path = os.path.join(reports_dir, f'order_report_{today}.csv')
+    file_path = os.path.join(reports_dir, f'report_{param.name}_{timezone.now().date()}.csv')
     with open(file_path, 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
-        writer.writerow(['Дата', 'Количество заказов', 'Общая выручка'])
-        writer.writerow([today, total_orders, total_revenue])
+        writer.writerow(['Параметр', 'Количество заказов', 'Количество букетов', 'Общая выручка'])
+        writer.writerow([param.name, total_orders, total_bouquets, total_revenue])
 
+    report.file.name = file_path
+    report.save()
     return report
 
