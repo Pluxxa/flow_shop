@@ -1,0 +1,63 @@
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 2734
+"GET /admin/ HTTP/1.1" 200 12248
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13925
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/reportparameter/add/ HTTP/1.1" 200 11335
+- Broken pipe from ('127.0.0.1', 63208)
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/reportparameter/add/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 14588
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/ HTTP/1.1" 200 14156
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/add/ HTTP/1.1" 200 13296
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/report/add/ HTTP/1.1" 302 0
+"GET /admin/shop/report/ HTTP/1.1" 200 14937
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+C:\PyCh\flow_shop\shop\admin.py changed, reloading.
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 2734
+"GET /admin/ HTTP/1.1" 200 12262
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 14369
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/ HTTP/1.1" 200 14690
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/reportparameter/add/ HTTP/1.1" 200 11335
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/reportparameter/add/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 15032
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/add/ HTTP/1.1" 200 13337
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/report/add/ HTTP/1.1" 302 0
+"GET /admin/shop/report/ HTTP/1.1" 200 15471
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+C:\PyCh\flow_shop\shop\admin.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 2734
+"GET /admin/ HTTP/1.1" 200 12262
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 12399
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/reportparameter/add/ HTTP/1.1" 200 11335
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 12399
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/reportparameter/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 12592
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/img/icon-alert.svg HTTP/1.1" 304 0
+"GET /admin/shop/reportparameter/add/ HTTP/1.1" 200 11335
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/reportparameter/add/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13003
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/add/ HTTP/1.1" 200 13380
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/report/add/ HTTP/1.1" 302 0
+"GET /admin/shop/report/ HTTP/1.1" 200 16011
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342

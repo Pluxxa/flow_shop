@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import Product, Cart, CartItem, Order, QuickOrder, ReportParameter, Report
 from .views import generate_report
+import logging
+
+# Настроим логгер
+logger = logging.getLogger(__name__)
+
 
 # Регистрируем модель Product в админке
 admin.site.register(Product)
@@ -30,20 +35,29 @@ class QuickOrderAdmin(admin.ModelAdmin):
         return True  # Включаем возможность удаления
 
 
-@admin.register(ReportParameter)
-class ReportParameterAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_date', 'end_date', 'created_at')
-    list_filter = ('start_date', 'end_date')
-    search_fields = ('name',)
-    actions = ['generate_report']
 
-    def generate_report(self, request, queryset):
-        for param in queryset:
-            generate_report(param)
-        self.message_user(request, f"Отчёты для {queryset.count()} параметров успешно созданы.")
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ('parameter', 'total_orders', 'total_bouquets', 'total_revenue', 'created_at')
+    list_display = ('parameter', 'total_orders', 'total_bouquets', 'total_revenue', 'created_at', 'file')
     readonly_fields = ('file', 'total_orders', 'total_bouquets', 'total_revenue')
     list_filter = ('created_at',)
+
+@admin.register(ReportParameter)
+class ReportParameterAdmin(admin.ModelAdmin):
+    list_display = ('name', 'start_date', 'end_date')
+    actions = ['generate_report_action']
+
+    def generate_report_action(self, request, queryset):
+        logger.info(f"Начало создания отчётов для параметров: {queryset.count()} параметров.")
+        for param in queryset:
+            try:
+                logger.info(f"Обрабатывается параметр: {param.name}")
+                report = generate_report(param)
+                logger.info(f"Отчёт для параметра {param.name} успешно создан. Ссылка на файл: {report.file.url}")
+                self.message_user(request, f"Отчёт для параметра '{param.name}' успешно создан. Ссылка на файл: {report.file.url}")
+            except Exception as e:
+                logger.error(f"Ошибка при создании отчёта для параметра {param.name}: {e}")
+                self.message_user(request, f"Ошибка при создании отчёта для параметра '{param.name}': {e}")
+
+    generate_report_action.short_description = "Создать отчёты"

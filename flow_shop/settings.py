@@ -141,3 +141,26 @@ TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = 'C:/PyCh/flow_shop/media'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'report_generation.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

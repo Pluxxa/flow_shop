@@ -19,6 +19,11 @@ from django.utils import timezone
 from django.db.models import Sum
 from telegram_bot.bot import send_order_notification
 import asyncio
+import logging
+
+# Настроим логгер
+logger = logging.getLogger(__name__)
+
 
 
 def register(request):
@@ -242,21 +247,32 @@ def generate_report_view(request):
 
 
 def generate_report(param):
+    logger.info(f"Начало генерации отчета для параметра: {param.name}")
+
     # Фильтрация заказов по параметрам
     orders = QuickOrder.objects.filter(created_at__date__range=(param.start_date, param.end_date))
+    logger.info(f"Найдено {orders.count()} заказов для параметра: {param.name}")
+
+    if orders.count() == 0:
+        logger.warning(
+            f"Для параметра {param.name} нет заказов в выбранный период ({param.start_date} - {param.end_date}).")
 
     # Подсчёт статистики
     total_orders = orders.count()
     total_bouquets = sum(order.quantity for order in orders)
     total_revenue = sum(order.total_price for order in orders)
 
-    # Сохранение отчёта
+    logger.info(
+        f"Общее количество заказов: {total_orders}, количество букетов: {total_bouquets}, общая выручка: {total_revenue:.2f}")
+
+    # Генерация и сохранение отчёта
     report = Report.objects.create(
         parameter=param,
         total_orders=total_orders,
         total_bouquets=total_bouquets,
         total_revenue=total_revenue
     )
+    logger.info(f"Отчет для параметра {param.name} успешно создан и сохранен в базе данных.")
 
     # Генерация CSV-файла
     reports_dir = 'reports'
@@ -269,7 +285,10 @@ def generate_report(param):
         writer.writerow(['Параметр', 'Количество заказов', 'Количество букетов', 'Общая выручка'])
         writer.writerow([param.name, total_orders, total_bouquets, total_revenue])
 
+    logger.info(f"CSV-файл отчета сохранен по пути: {file_path}")
+
     report.file.name = file_path
     report.save()
-    return report
+    logger.info(f"Файл отчета {file_path} успешно прикреплен к записи отчета в базе данных.")
 
+    return report
