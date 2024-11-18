@@ -6,6 +6,10 @@ from shop.models import QuickOrder, Order  # Добавить импорт мо�
 from asgiref.sync import sync_to_async
 from django.db.models import Prefetch
 import asyncio
+import io
+import csv
+from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 
 # Инициализация бота с токеном
@@ -39,7 +43,7 @@ def get_order_with_items(order_id):
 
     # Диагностический вывод, чтобы проверить связанные элементы
     related_items = order.items.all()
-    print(f"Связанные позиции для заказа #{order.id}: {[str(item) for item in related_items]}")  # Вывод всех элементов
+
 
     return order
 
@@ -78,9 +82,12 @@ async def send_order_status_update(order_id):
 
 
 def send_report_to_telegram(file_path):
-    bot_token = "ВАШ_ТОКЕН_БОТА"
-    chat_id = "ВАШ_CHAT_ID"
+    bot_token = telegram.Bot(token=settings.TOKEN)
+    chat_id = settings.TELEGRAM_CHAT_ID
+
     bot = telegram.Bot(token=bot_token)
 
     with open(file_path, 'rb') as file:
-        bot.send_document(chat_id=chat_id, document=file)
+        bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
+
+

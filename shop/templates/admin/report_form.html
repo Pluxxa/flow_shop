@@ -1,9 +1,21 @@
-{% extends "admin/base_site.html" %}
-{% block content %}
-<h1>Создать новый отчёт</h1>
-<form method="post" action=".">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="button">Сформировать отчёт</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание отчёта</title>
+</head>
+<body>
+    <h1>Создание отчёта</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Создать отчёт</button>
+    </form>
+
+    {% if report %}
+        <h2>Отчёт создан!</h2>
+        <a href="{% url 'admin:send-report' report.id %}">Отправить отчёт в Telegram</a>
+    {% endif %}
+</body>
+</html>

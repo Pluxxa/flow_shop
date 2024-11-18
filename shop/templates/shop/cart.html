@@ -30,9 +30,9 @@
         <p class="lead">Итого: {{ total_price }} ₽</p>
 
         <!-- Кнопка для оформления заказа -->
-        <form method="post" action="{% url 'cart' %}">
+        <form method="post" action="{% url 'checkout' %}">
             {% csrf_token %}
-            <button type="submit" class="btn btn-success btn-lg">Оформить заказ</button>
+            <button type="submit" class="btn btn-primary">Оформить заказ</button>
         </form>
     {% else %}
         <p>Ваша корзина пуста.</p>

@@ -140,7 +140,7 @@ TELEGRAM_CHAT_ID = '6870044057'
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = 'C:/PyCh/flow_shop/media'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGGING = {
     'version': 1,

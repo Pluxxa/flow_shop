@@ -1,0 +1,25 @@
+{% extends 'shop/base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h2>Оформление заказа</h2>
+
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+
+  <h3>Товары в корзине:</h3>
+  <ul>
+    {% for item in cart_items %}
+      <li>{{ item.product.name }} ({{ item.quantity }}) - {{ item.product.price }} ₽</li>
+    {% endfor %}
+  </ul>
+
+  <div>
+    <p>Общая стоимость: {{ total_price }} ₽</p>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Подтвердить заказ</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отправка отчета</title>
+</head>
+<body>
+    <h1>Отправить отчет в Telegram</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="start_date">Дата начала:</label>
+        <input type="date" name="start_date" required><br>
+
+        <label for="end_date">Дата окончания:</label>
+        <input type="date" name="end_date" required><br><br>
+
+        <button type="submit">Отправить отчет</button>
+    </form>
+</body>
+</html>

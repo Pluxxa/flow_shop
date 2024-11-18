@@ -20,6 +20,7 @@ from django.db.models import Sum
 from telegram_bot.bot import send_order_notification
 import asyncio
 import logging
+from django.conf import settings
 
 
 # Настроим логгер
@@ -64,6 +65,7 @@ def add_to_cart(request, product_id):
 
     return redirect('cart')  # Перенаправляем на страницу корзины
 
+
 @login_required
 def cart_view(request):
     user_profile = getattr(request.user, 'profile', None)
@@ -81,32 +83,42 @@ def cart_view(request):
     total_price = sum(item.product.price * item.quantity for item in cart_items)
 
     if request.method == 'POST':
-        if cart_items.exists():
+        # Обработка формы с уточнением данных
+        form = QuickOrderForm(request.POST)
+        if form.is_valid():
             # Создаём объект QuickOrder только один раз
-            quick_order = QuickOrder.objects.create(
-                customer_name=request.user.get_full_name(),
-                customer_email=request.user.email,
-                customer_phone=user_profile.phone,
-                delivery_address=user_profile.address,
-                order_type='cart',
-                user=request.user
-            )
+            quick_order = form.save(commit=False)
+            quick_order.order_type = 'cart'  # Указываем, что это заказ из корзины
+            quick_order.user = request.user
+            quick_order.save()  # Сохраняем заказ, чтобы получить его ID
 
-            # Добавляем каждый элемент корзины как отдельный Order в QuickOrder
+            # Добавляем каждый элемент из корзины как отдельный Order
             for item in cart_items:
                 Order.objects.create(
                     quick_order=quick_order,
                     product=item.product,
                     quantity=item.quantity
                 )
+
+            # Отправка уведомления о заказе
             asyncio.run(send_order_notification(quick_order.id))
-            cart.items.all().delete()  # Очистка корзины
+
+            # Очищаем корзину
+            cart.items.all().delete()
+
             return redirect('order_success')
         else:
-            messages.warning(request, "Ваша корзина пуста.")
-            return redirect('cart')
+            messages.error(request, "Пожалуйста, заполните все поля корректно.")
+    else:
+        # Инициализируем форму с данными из профиля пользователя, если они есть
+        form = QuickOrderForm(initial={
+            'customer_name': request.user.get_full_name(),
+            'customer_email': request.user.email,
+            'customer_phone': user_profile.phone if user_profile else '',
+            'delivery_address': user_profile.address if user_profile else '',
+        })
 
-    return render(request, 'shop/cart.html', {'cart_items': cart_items, 'total_price': total_price})
+    return render(request, 'shop/cart.html', {'cart_items': cart_items, 'total_price': total_price, 'form': form})
 
 def home(request):
     return render(request, 'shop/home.html')
@@ -305,10 +317,72 @@ def generate_csv_report(start_date, end_date, report):
     for order in orders:
         writer.writerow([order.id, order.created_at, order.customer_name, order.total_price, order.get_status_display()])
 
-    # Сохраняем CSV в модель Report
-    file_path = f'media/reports/report_{report.id}.csv'
+    # Генерация полного пути для сохранения файла
+    file_name = f'report_{report.id}.csv'
+    file_path = os.path.join(settings.MEDIA_ROOT, 'reports', file_name)
+
+    # Создание директории, если её нет
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    # Сохраняем CSV в файл
     with open(file_path, 'w', newline='') as file:
         file.write(response.content.decode('utf-8'))
 
-    report.file = file_path
+    # Сохраняем путь к файлу в модель Report
+    report.file.name = os.path.join('reports', file_name)  # Только относительно MEDIA_ROOT
     report.save()
+
+
+@login_required
+def checkout(request):
+    user_profile = getattr(request.user, 'profile', None)
+
+    # Проверка на заполненность профиля
+    if user_profile and (not user_profile.phone or not user_profile.address):
+        messages.warning(request, "Для оформления заказа, пожалуйста, заполните профиль.")
+        return redirect('profile_edit')
+
+    # Получаем корзину текущего пользователя
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_items = cart.items.all()
+
+    # Вычисление общей стоимости
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    if request.method == 'POST':
+        # Обработка формы с уточнением данных
+        form = QuickOrderForm(request.POST)
+        if form.is_valid():
+            # Создаём объект QuickOrder только один раз
+            quick_order = form.save(commit=False)
+            quick_order.order_type = 'cart'  # Указываем, что это заказ из корзины
+            quick_order.user = request.user
+            quick_order.save()  # Сохраняем заказ, чтобы получить его ID
+
+            # Добавляем каждый элемент из корзины как отдельный Order
+            for item in cart_items:
+                Order.objects.create(
+                    quick_order=quick_order,
+                    product=item.product,
+                    quantity=item.quantity
+                )
+
+            # Отправка уведомления о заказе
+            asyncio.run(send_order_notification(quick_order.id))
+
+            # Очищаем корзину
+            cart.items.all().delete()
+
+            return redirect('order_success')  # Перенаправление на страницу успеха
+        else:
+            messages.error(request, "Пожалуйста, заполните все поля корректно.")
+    else:
+        # Инициализируем форму с данными из профиля пользователя, если они есть
+        form = QuickOrderForm(initial={
+            'customer_name': request.user.get_full_name(),
+            'customer_email': request.user.email,
+            'customer_phone': user_profile.phone if user_profile else '',
+            'delivery_address': user_profile.address if user_profile else '',
+        })
+
+    return render(request, 'shop/checkout.html', {'form': form, 'cart_items': cart_items, 'total_price': total_price})

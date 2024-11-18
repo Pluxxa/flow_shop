@@ -23,6 +23,7 @@ urlpatterns = [
     path('product/<int:product_id>/', views.product_detail, name='product_detail'),
     path('product/<int:product_id>/add_review/', views.add_review, name='add_review'),
     path('generate_report/', views.generate_report_view, name='generate_report'),
+    path('checkout/', views.checkout, name='checkout'),
 ]
 
 if settings.DEBUG:
