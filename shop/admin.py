@@ -77,15 +77,17 @@ class ReportAdmin(admin.ModelAdmin):
                 end_date = form.cleaned_data['end_date']
 
                 # Генерация отчёта
-                report = Report.objects.create(parameter=f"Отчёт с {start_date} по {end_date}")
-                generate_csv_report(start_date, end_date, report)
-
-                self.message_user(request, "Отчёт успешно создан!")
-                return redirect('admin:shop_report_changelist')
+                try:
+                    report = Report.objects.create(parameter=f"Отчёт с {start_date} по {end_date}")
+                    generate_csv_report(start_date, end_date, report)
+                    self.message_user(request, "Отчёт успешно создан!")
+                    return redirect('admin:shop_report_changelist')
+                except Exception as e:
+                    self.message_user(request, f"Ошибка при создании отчёта: {e}", level='error')
+                    logger.error(f"Ошибка при создании отчёта: {e}")
         else:
             form = ReportForm()
 
-        # Рендерим страницу с формой
         return render(request, 'admin/report_form.html', {'form': form})
 
     def send_report_view(self, request, report_id):
@@ -93,49 +95,11 @@ class ReportAdmin(admin.ModelAdmin):
         Кастомный обработчик для отправки отчёта в Telegram.
         """
         report = Report.objects.get(id=report_id)
-
-        # Путь к файлу отчёта
-        report_file_path = report.file.path
-
-        # Отправка отчёта в Telegram
-        send_report_to_telegram(report_file_path)
-
-        # Уведомление в админке
-        self.message_user(request, "Отчёт отправлен в Telegram.")
+        try:
+            report_file_path = report.file.path
+            send_report_to_telegram(report_file_path)
+            self.message_user(request, "Отчёт отправлен в Telegram.")
+        except Exception as e:
+            self.message_user(request, f"Ошибка при отправке отчёта в Telegram: {e}", level='error')
+            logger.error(f"Ошибка при отправке отчёта в Telegram: {e}")
         return redirect('admin:shop_report_changelist')
-
-    def get_actions(self, request):
-        """
-        Мы добавляем действие отправки отчёта в Telegram на страницу списка отчетов.
-        """
-        actions = super().get_actions(request)
-
-        # Добавляем наше действие
-        actions['send_report'] = (
-            self.send_report_action,
-            'send_report',
-            "Отправить выбранные отчёты в Telegram"
-        )
-        return actions
-
-    def send_report_action(self, request, queryset, *args, **kwargs):
-        # Выводим содержимое queryset
-        logger.debug(f"Переданный queryset: {queryset}")
-
-        # Убедимся, что все объекты — это экземпляры модели Report
-        for report in queryset:
-            logger.debug(f"Обрабатываем объект: {report}, тип: {type(report)}")
-
-            if isinstance(report, Report):
-                # Отправка файла, если он существует
-                if report.file:
-                    report_file_path = report.file.path
-                    logger.debug(f"Отправляем файл отчёта: {report_file_path}")
-                    send_report_to_telegram(report_file_path)
-                else:
-                    logger.warning(f"У отчёта {report} нет прикрепленного файла.")
-            else:
-                logger.error(f"Объект {report} не является экземпляром Report.")
-
-        # Сообщение об успешной отправке
-        self.message_user(request, "Выбранные отчёты отправлены в Telegram.")

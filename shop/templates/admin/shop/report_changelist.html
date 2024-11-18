@@ -3,7 +3,8 @@
 {% block content %}
     <div>
         <h2>Формирование отчёта</h2>
-        <form method="get" action="generate-report/">
+        <form method="POST" action="{% url 'admin:create-report' %}">
+            {% csrf_token %}
             <label for="start_date">Дата начала:</label>
             <input type="date" name="start_date" required>
             <label for="end_date">Дата окончания:</label>

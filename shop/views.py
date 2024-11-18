@@ -309,27 +309,21 @@ def generate_csv_report(start_date, end_date, report):
     report.save()
 
     # Генерация CSV
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="report_{start_date}_{end_date}.csv"'
-
-    writer = csv.writer(response)
-    writer.writerow(['ID заказа', 'Дата', 'Клиент', 'Общая сумма', 'Статус'])
-    for order in orders:
-        writer.writerow([order.id, order.created_at, order.customer_name, order.total_price, order.get_status_display()])
-
-    # Генерация полного пути для сохранения файла
     file_name = f'report_{report.id}.csv'
     file_path = os.path.join(settings.MEDIA_ROOT, 'reports', file_name)
 
     # Создание директории, если её нет
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-    # Сохраняем CSV в файл
-    with open(file_path, 'w', newline='') as file:
-        file.write(response.content.decode('utf-8'))
+    # Генерация CSV и сохранение в файл
+    with open(file_path, 'w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(['ID заказа', 'Дата', 'Клиент', 'Общая сумма', 'Статус'])
+        for order in orders:
+            writer.writerow([order.id, order.created_at, order.customer_name, order.total_price, order.get_status_display()])
 
-    # Сохраняем путь к файлу в модель Report
-    report.file.name = os.path.join('reports', file_name)  # Только относительно MEDIA_ROOT
+    # Привязываем файл к объекту отчёта
+    report.file.name = os.path.join('reports', file_name)
     report.save()
 
 
