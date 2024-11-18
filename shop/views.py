@@ -21,8 +21,9 @@ from telegram_bot.bot import send_order_notification
 import asyncio
 import logging
 
+
 # Настроим логгер
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('shop')
 
 
 
@@ -246,49 +247,68 @@ def generate_report_view(request):
     return HttpResponse(f"Отчёт за {report.date} успешно создан.")
 
 
-def generate_report(param):
-    logger.info(f"Начало генерации отчета для параметра: {param.name}")
+def generate_report(report_param_id):
+    # Получаем параметры отчёта
+    parameter = ReportParameter.objects.get(id=report_param_id)
 
-    # Фильтрация заказов по параметрам
-    orders = QuickOrder.objects.filter(created_at__date__range=(param.start_date, param.end_date))
-    logger.info(f"Найдено {orders.count()} заказов для параметра: {param.name}")
-
-    if orders.count() == 0:
-        logger.warning(
-            f"Для параметра {param.name} нет заказов в выбранный период ({param.start_date} - {param.end_date}).")
-
-    # Подсчёт статистики
+    # Считаем данные за указанный период
+    orders = QuickOrder.objects.filter(
+        created_at__range=[parameter.start_date, parameter.end_date]
+    )
     total_orders = orders.count()
-    total_bouquets = sum(order.quantity for order in orders)
-    total_revenue = sum(order.total_price for order in orders)
+    total_bouquets = orders.aggregate(total=Sum('quantity'))['total'] or 0
+    total_revenue = orders.aggregate(total=Sum('total_price'))['total'] or 0
 
-    logger.info(
-        f"Общее количество заказов: {total_orders}, количество букетов: {total_bouquets}, общая выручка: {total_revenue:.2f}")
-
-    # Генерация и сохранение отчёта
+    # Создаём объект отчёта
     report = Report.objects.create(
-        parameter=param,
+        parameter=parameter,
         total_orders=total_orders,
         total_bouquets=total_bouquets,
-        total_revenue=total_revenue
+        total_revenue=total_revenue,
     )
-    logger.info(f"Отчет для параметра {param.name} успешно создан и сохранен в базе данных.")
 
-    # Генерация CSV-файла
-    reports_dir = 'reports'
-    if not os.path.exists(reports_dir):
-        os.makedirs(reports_dir)
+    # Генерируем CSV-файл
+    file_path = f"reports/report_{report.id}.csv"
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["Параметр", "Количество заказов", "Количество букетов", "Общая выручка"])
+        writer.writerow([parameter.name, total_orders, total_bouquets, total_revenue])
 
-    file_path = os.path.join(reports_dir, f'report_{param.name}_{timezone.now().date()}.csv')
-    with open(file_path, 'w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Параметр', 'Количество заказов', 'Количество букетов', 'Общая выручка'])
-        writer.writerow([param.name, total_orders, total_bouquets, total_revenue])
-
-    logger.info(f"CSV-файл отчета сохранен по пути: {file_path}")
-
-    report.file.name = file_path
-    report.save()
-    logger.info(f"Файл отчета {file_path} успешно прикреплен к записи отчета в базе данных.")
+    # Привязываем файл к объекту отчёта
+    with open(file_path, 'rb') as csvfile:
+        report.file.save(f"report_{report.id}.csv", csvfile)
 
     return report
+
+
+def generate_csv_report(start_date, end_date, report):
+    """
+    Генерация CSV-отчёта и сохранение данных в Report.
+    """
+    orders = QuickOrder.objects.filter(created_at__range=(start_date, end_date))
+    total_orders = orders.count()
+    total_bouquets = sum(item.quantity for order in orders for item in order.items.all())
+    total_revenue = sum(order.total_price for order in orders)
+
+    # Сохраняем данные в модель Report
+    report.total_orders = total_orders
+    report.total_bouquets = total_bouquets
+    report.total_revenue = total_revenue
+    report.save()
+
+    # Генерация CSV
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="report_{start_date}_{end_date}.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID заказа', 'Дата', 'Клиент', 'Общая сумма', 'Статус'])
+    for order in orders:
+        writer.writerow([order.id, order.created_at, order.customer_name, order.total_price, order.get_status_display()])
+
+    # Сохраняем CSV в модель Report
+    file_path = f'media/reports/report_{report.id}.csv'
+    with open(file_path, 'w', newline='') as file:
+        file.write(response.content.decode('utf-8'))
+
+    report.file = file_path
+    report.save()

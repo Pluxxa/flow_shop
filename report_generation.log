@@ -61,3 +61,78 @@ Watching for file changes with StatReloader
 "POST /admin/shop/report/add/ HTTP/1.1" 302 0
 "GET /admin/shop/report/ HTTP/1.1" 200 16011
 "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+Watching for file changes with StatReloader
+"GET / HTTP/1.1" 200 2734
+"GET / HTTP/1.1" 200 2734
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 7336
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 7336
+Not Found: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 404 7336
+"GET /admin/ HTTP/1.1" 200 12232
+"GET /static/admin/css/dark_mode.css HTTP/1.1" 304 0
+"GET /static/admin/css/base.css HTTP/1.1" 304 0
+"GET /static/admin/css/dashboard.css HTTP/1.1" 304 0
+"GET /static/admin/js/theme.js HTTP/1.1" 304 0
+"GET /static/admin/css/nav_sidebar.css HTTP/1.1" 304 0
+"GET /static/admin/css/responsive.css HTTP/1.1" 304 0
+"GET /static/admin/js/nav_sidebar.js HTTP/1.1" 304 0
+"GET /static/admin/img/icon-changelink.svg HTTP/1.1" 304 0
+"GET /static/admin/img/icon-addlink.svg HTTP/1.1" 304 0
+"GET /admin/shop/reportparameter/add/ HTTP/1.1" 200 11335
+"GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 304 0
+"GET /static/admin/js/core.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 304 0
+"GET /static/admin/js/actions.js HTTP/1.1" 304 0
+"GET /static/admin/js/urlify.js HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate_init.js HTTP/1.1" 304 0
+"GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 304 0
+"GET /static/admin/css/forms.css HTTP/1.1" 304 0
+"GET /static/admin/js/prepopulate.js HTTP/1.1" 304 0
+"GET /static/admin/js/jquery.init.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/css/widgets.css HTTP/1.1" 304 0
+"GET /static/admin/js/change_form.js HTTP/1.1" 304 0
+"POST /admin/shop/reportparameter/add/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13386
+"GET /static/admin/css/changelists.css HTTP/1.1" 304 0
+"GET /static/admin/js/filters.js HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /static/admin/img/icon-yes.svg HTTP/1.1" 304 0
+"GET /static/admin/img/tooltag-add.svg HTTP/1.1" 304 0
+"GET /admin/shop/reportparameter/7/change/ HTTP/1.1" 200 11612
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/reportparameter/7/change/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13388
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/add/ HTTP/1.1" 200 13423
+"GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 304 0
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/report/add/ HTTP/1.1" 302 0
+"GET /admin/shop/report/ HTTP/1.1" 200 16549
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13165
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/ HTTP/1.1" 200 6928
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13165
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/ HTTP/1.1" 200 6928
+"GET /admin/shop/report/ HTTP/1.1" 200 16300
+- Broken pipe from ('127.0.0.1', 50801)
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+C:\PyCh\flow_shop\shop\admin.py changed, reloading.
+Watching for file changes with StatReloader
+"GET /admin/shop/report/ HTTP/1.1" 200 16300
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/reportparameter/add/ HTTP/1.1" 200 11335
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/reportparameter/add/ HTTP/1.1" 302 0
+"GET /admin/shop/reportparameter/ HTTP/1.1" 200 13769
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"GET /admin/shop/report/add/ HTTP/1.1" 200 13466
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+"POST /admin/shop/report/add/ HTTP/1.1" 302 0
+"GET /admin/shop/report/ HTTP/1.1" 200 17087
+"GET /admin/jsi18n/ HTTP/1.1" 200 3342
+C:\PyCh\flow_shop\flow_shop\settings.py changed, reloading.

@@ -1,7 +1,14 @@
 from django.contrib import admin
-from .models import Product, Cart, CartItem, Order, QuickOrder, ReportParameter, Report
+from .models import Product, Cart, CartItem, Order, QuickOrder, Report, ReportParameter
 from .views import generate_report
 import logging
+from telegram_bot.bot import send_report_to_telegram
+from django.utils.html import format_html
+from django.urls import path
+from .views import generate_csv_report
+from django.shortcuts import redirect, render
+from django.utils.timezone import now
+from django import forms
 
 # Настроим логгер
 logger = logging.getLogger(__name__)
@@ -35,29 +42,47 @@ class QuickOrderAdmin(admin.ModelAdmin):
         return True  # Включаем возможность удаления
 
 
+class ReportForm(forms.Form):
+    """
+    Форма для выбора диапазона дат.
+    """
+    start_date = forms.DateField(label="Начальная дата", widget=forms.SelectDateWidget)
+    end_date = forms.DateField(label="Конечная дата", widget=forms.SelectDateWidget)
 
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ('parameter', 'total_orders', 'total_bouquets', 'total_revenue', 'created_at', 'file')
-    readonly_fields = ('file', 'total_orders', 'total_bouquets', 'total_revenue')
-    list_filter = ('created_at',)
+    list_display = ('parameter', 'created_at', 'total_orders', 'total_bouquets', 'total_revenue', 'file')
+    readonly_fields = ('total_orders', 'total_bouquets', 'total_revenue', 'file')
 
-@admin.register(ReportParameter)
-class ReportParameterAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_date', 'end_date')
-    actions = ['generate_report_action']
+    def get_urls(self):
+        """
+        Подключаем кастомный URL для формы создания отчёта.
+        """
+        urls = super().get_urls()
+        custom_urls = [
+            path('add/', self.admin_site.admin_view(self.create_report_view), name='create-report'),
+        ]
+        return custom_urls + urls
 
-    def generate_report_action(self, request, queryset):
-        logger.info(f"Начало создания отчётов для параметров: {queryset.count()} параметров.")
-        for param in queryset:
-            try:
-                logger.info(f"Обрабатывается параметр: {param.name}")
-                report = generate_report(param)
-                logger.info(f"Отчёт для параметра {param.name} успешно создан. Ссылка на файл: {report.file.url}")
-                self.message_user(request, f"Отчёт для параметра '{param.name}' успешно создан. Ссылка на файл: {report.file.url}")
-            except Exception as e:
-                logger.error(f"Ошибка при создании отчёта для параметра {param.name}: {e}")
-                self.message_user(request, f"Ошибка при создании отчёта для параметра '{param.name}': {e}")
+    def create_report_view(self, request):
+        """
+        Кастомный обработчик для создания отчёта.
+        """
+        if request.method == 'POST':
+            form = ReportForm(request.POST)
+            if form.is_valid():
+                start_date = form.cleaned_data['start_date']
+                end_date = form.cleaned_data['end_date']
 
-    generate_report_action.short_description = "Создать отчёты"
+                # Генерация отчёта
+                report = Report.objects.create(parameter=f"Отчёт с {start_date} по {end_date}")
+                generate_csv_report(start_date, end_date, report)  # Передаём объект Report в функцию
+
+                self.message_user(request, "Отчёт успешно создан!")
+                return redirect('admin:shop_report_changelist')
+        else:
+            form = ReportForm()
+
+        # Рендерим страницу с формой
+        return render(request, 'admin/report_form.html', {'form': form})

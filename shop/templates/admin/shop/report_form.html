@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Создание нового отчёта</h1>
+<form method="get" action="{% url 'admin:generate-report' %}">
+    <label for="start_date">Начальная дата:</label>
+    <input type="date" id="start_date" name="start_date" required>
+    
+    <label for="end_date">Конечная дата:</label>
+    <input type="date" id="end_date" name="end_date" required>
+
+    <button type="submit" class="button">Создать отчёт</button>
+</form>
+{% endblock %}

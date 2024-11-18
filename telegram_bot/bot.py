@@ -75,3 +75,12 @@ async def send_order_status_update(order_id):
         await send_message_to_telegram(status_message)
     except QuickOrder.DoesNotExist:
         logger.error(f"Order with ID {order_id} not found.")
+
+
+def send_report_to_telegram(file_path):
+    bot_token = "ВАШ_ТОКЕН_БОТА"
+    chat_id = "ВАШ_CHAT_ID"
+    bot = telegram.Bot(token=bot_token)
+
+    with open(file_path, 'rb') as file:
+        bot.send_document(chat_id=chat_id, document=file)

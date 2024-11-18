@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django import forms
 
 
 class Product(models.Model):
@@ -106,22 +107,26 @@ class OrderReport(models.Model):
 
 
 class ReportParameter(models.Model):
-    name = models.CharField(max_length=255, verbose_name="Название отчета")
+    name = models.CharField(max_length=255, verbose_name="Название параметра")
     start_date = models.DateField(verbose_name="Дата начала")
     end_date = models.DateField(verbose_name="Дата окончания")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+
+    class Meta:
+        verbose_name = "Параметр отчёта"
+        verbose_name_plural = "Параметры отчётов"
 
     def __str__(self):
         return self.name
 
 
 class Report(models.Model):
-    parameter = models.ForeignKey(ReportParameter, on_delete=models.CASCADE, related_name="reports")
-    file = models.FileField(upload_to='reports/', verbose_name="Файл отчета", blank=True, null=True)
-    total_orders = models.PositiveIntegerField(verbose_name="Общее количество заказов", default=0)
-    total_bouquets = models.PositiveIntegerField(verbose_name="Количество букетов", default=0)
-    total_revenue = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Общая выручка", default=0)
+    parameter = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    total_orders = models.PositiveIntegerField(default=0)
+    total_bouquets = models.PositiveIntegerField(default=0)
+    total_revenue = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    file = models.FileField(upload_to='reports/', blank=True, null=True)
 
     def __str__(self):
-        return f"Отчет: {self.parameter.name} ({self.created_at})"
+        return self.parameter
+
