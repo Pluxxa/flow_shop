@@ -9,6 +9,7 @@ from .views import generate_csv_report
 from django.shortcuts import redirect, render
 from django.utils.timezone import now
 from django import forms
+import asyncio
 
 # Настроим логгер
 logger = logging.getLogger(__name__)
@@ -52,12 +53,23 @@ class ReportForm(forms.Form):
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
-    list_display = ('parameter', 'created_at', 'total_orders', 'total_bouquets', 'total_revenue', 'file')
+    list_display = ('parameter', 'created_at', 'total_orders', 'total_bouquets', 'total_revenue', 'file', 'send_report_button')
     readonly_fields = ('total_orders', 'total_bouquets', 'total_revenue', 'file')
+
+    def send_report_button(self, obj):
+        """
+        Добавляем кнопку для отправки отчёта в Telegram.
+        """
+        return format_html(
+            '<a href="/admin/shop/report/send_report/{}/" class="button" style="background-color: #4CAF50; color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">Отправить в Telegram</a>',
+            obj.id
+        )
+    send_report_button.allow_tags = True
+    send_report_button.short_description = 'Действия'
 
     def get_urls(self):
         """
-        Подключаем кастомный URL для формы создания отчёта и отправки отчёта в Telegram.
+        Подключаем кастомные URL для формы создания отчёта и отправки отчёта в Telegram.
         """
         urls = super().get_urls()
         custom_urls = [
@@ -92,14 +104,16 @@ class ReportAdmin(admin.ModelAdmin):
 
     def send_report_view(self, request, report_id):
         """
-        Кастомный обработчик для отправки отчёта в Telegram.
+        Синхронный обработчик для отправки отчёта в Telegram.
         """
         report = Report.objects.get(id=report_id)
         try:
             report_file_path = report.file.path
+            # Отправляем отчёт синхронно
             send_report_to_telegram(report_file_path)
             self.message_user(request, "Отчёт отправлен в Telegram.")
         except Exception as e:
             self.message_user(request, f"Ошибка при отправке отчёта в Telegram: {e}", level='error')
             logger.error(f"Ошибка при отправке отчёта в Telegram: {e}")
         return redirect('admin:shop_report_changelist')
+

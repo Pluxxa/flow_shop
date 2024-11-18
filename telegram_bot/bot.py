@@ -81,8 +81,10 @@ async def send_order_status_update(order_id):
         logger.error(f"Order with ID {order_id} not found.")
 
 
-def send_report_to_telegram(file_path):
-    print(f"Информация {file_path}")
+async def send_report_to_telegram(file_path):
+    """
+    Асинхронная отправка отчёта в Telegram.
+    """
     bot_token = settings.TOKEN  # Токен бота
     chat_id = settings.TELEGRAM_CHAT_ID  # Идентификатор чата
 
@@ -93,16 +95,16 @@ def send_report_to_telegram(file_path):
         bot = telegram.Bot(token=bot_token)
 
         # Проверяем доступность бота
-        bot_info = bot.get_me()
+        bot_info = await bot.get_me()  # Асинхронное получение информации о боте
         logger.debug(f"Информация о боте: {bot_info}")
         print(f"Информация о боте: {bot_info}")
 
         with open(file_path, 'rb') as file:
             logger.debug("Начинаем отправку отчёта...")
             print(f"Начинаем отправку отчёта...{file_path}")
-            bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
+            await bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
+
         print("Отчёт успешно отправлен в Telegram.")
         logger.debug("Отчёт успешно отправлен в Telegram.")
     except Exception as e:
         logger.error(f"Ошибка при отправке отчёта в Telegram: {e}")
-
