@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Product, Cart, CartItem, Order, QuickOrder, Report, ReportParameter
 from .views import generate_report
 import logging
-from telegram_bot.telegram_sync import send_message_to_telegram_sync, send_report_to_telegram_sync
+from telegram_bot.telegram_sync import send_report_to_telegram_async, send_message_to_telegram_1
 from telegram_bot.bot import send_report_to_telegram
 from django.utils.html import format_html
 from django.urls import path
@@ -110,8 +110,8 @@ class ReportAdmin(admin.ModelAdmin):
         report = Report.objects.get(id=report_id)
         try:
             report_file_path = report.file.path
-            # Отправляем отчёт синхронно
-            send_report_to_telegram_sync(report_file_path)
+            # Отправляем отчёт асинхронно
+            asyncio.run(send_report_to_telegram_async(report_file_path))  # используем asyncio.run
             self.message_user(request, "Отчёт отправлен в Telegram.")
         except Exception as e:
             self.message_user(request, f"Ошибка при отправке отчёта в Telegram: {e}", level='error')
