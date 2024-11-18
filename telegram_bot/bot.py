@@ -82,12 +82,27 @@ async def send_order_status_update(order_id):
 
 
 def send_report_to_telegram(file_path):
-    bot_token = telegram.Bot(token=settings.TOKEN)
-    chat_id = settings.TELEGRAM_CHAT_ID
+    print(f"Информация {file_path}")
+    bot_token = settings.TOKEN  # Токен бота
+    chat_id = settings.TELEGRAM_CHAT_ID  # Идентификатор чата
 
-    bot = telegram.Bot(token=bot_token)
+    logger.debug(f"Токен бота: {bot_token}")
+    logger.debug(f"Чат ID: {chat_id}")
 
-    with open(file_path, 'rb') as file:
-        bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
+    try:
+        bot = telegram.Bot(token=bot_token)
 
+        # Проверяем доступность бота
+        bot_info = bot.get_me()
+        logger.debug(f"Информация о боте: {bot_info}")
+        print(f"Информация о боте: {bot_info}")
+
+        with open(file_path, 'rb') as file:
+            logger.debug("Начинаем отправку отчёта...")
+            print(f"Начинаем отправку отчёта...{file_path}")
+            bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
+        print("Отчёт успешно отправлен в Telegram.")
+        logger.debug("Отчёт успешно отправлен в Telegram.")
+    except Exception as e:
+        logger.error(f"Ошибка при отправке отчёта в Telegram: {e}")
 

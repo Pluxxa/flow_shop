@@ -78,7 +78,7 @@ class ReportAdmin(admin.ModelAdmin):
 
                 # Генерация отчёта
                 report = Report.objects.create(parameter=f"Отчёт с {start_date} по {end_date}")
-                generate_csv_report(start_date, end_date, report)  # Передаем объект Report в функцию
+                generate_csv_report(start_date, end_date, report)
 
                 self.message_user(request, "Отчёт успешно создан!")
                 return redirect('admin:shop_report_changelist')
@@ -118,16 +118,24 @@ class ReportAdmin(admin.ModelAdmin):
         )
         return actions
 
-    def send_report_action(self, request, queryset):
-        """
-        Действие для отправки выбранных отчетов в Telegram.
-        Принимает три аргумента: self, request, queryset
-        """
+    def send_report_action(self, request, queryset, *args, **kwargs):
+        # Выводим содержимое queryset
+        logger.debug(f"Переданный queryset: {queryset}")
+
+        # Убедимся, что все объекты — это экземпляры модели Report
         for report in queryset:
-            # Путь к файлу отчёта
-            report_file_path = report.file.path
+            logger.debug(f"Обрабатываем объект: {report}, тип: {type(report)}")
 
-            # Отправка отчёта в Telegram
-            send_report_to_telegram(report_file_path)
+            if isinstance(report, Report):
+                # Отправка файла, если он существует
+                if report.file:
+                    report_file_path = report.file.path
+                    logger.debug(f"Отправляем файл отчёта: {report_file_path}")
+                    send_report_to_telegram(report_file_path)
+                else:
+                    logger.warning(f"У отчёта {report} нет прикрепленного файла.")
+            else:
+                logger.error(f"Объект {report} не является экземпляром Report.")
 
-        self.message_user(request, "Отчёты отправлены в Telegram.")
+        # Сообщение об успешной отправке
+        self.message_user(request, "Выбранные отчёты отправлены в Telegram.")
