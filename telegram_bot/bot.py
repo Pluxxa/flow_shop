@@ -7,6 +7,7 @@ from asgiref.sync import sync_to_async
 from django.db.models import Prefetch
 import asyncio
 import io
+import os
 import csv
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -81,30 +82,29 @@ async def send_order_status_update(order_id):
         logger.error(f"Order with ID {order_id} not found.")
 
 
-async def send_report_to_telegram(file_path):
+def send_report_to_telegram(file_path):
     """
-    Асинхронная отправка отчёта в Telegram.
+    Синхронная отправка отчёта в Telegram.
     """
     bot_token = settings.TOKEN  # Токен бота
     chat_id = settings.TELEGRAM_CHAT_ID  # Идентификатор чата
 
-    logger.debug(f"Токен бота: {bot_token}")
-    logger.debug(f"Чат ID: {chat_id}")
-
     try:
         bot = telegram.Bot(token=bot_token)
 
-        # Проверяем доступность бота
-        bot_info = await bot.get_me()  # Асинхронное получение информации о боте
-        logger.debug(f"Информация о боте: {bot_info}")
+        # Получаем информацию о боте синхронно
+        bot_info = bot.get_me()
         print(f"Информация о боте: {bot_info}")
 
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f"Файл не найден: {file_path}")
+
+        # Синхронно отправляем отчёт в Telegram
         with open(file_path, 'rb') as file:
-            logger.debug("Начинаем отправку отчёта...")
-            print(f"Начинаем отправку отчёта...{file_path}")
-            await bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
+            print(f"Отправляем файл: {file_path}")
+            bot.send_document(chat_id=chat_id, document=file, filename="report.csv")
 
         print("Отчёт успешно отправлен в Telegram.")
-        logger.debug("Отчёт успешно отправлен в Telegram.")
     except Exception as e:
+        print(f"Ошибка при отправке отчёта в Telegram: {e}")
         logger.error(f"Ошибка при отправке отчёта в Telegram: {e}")
