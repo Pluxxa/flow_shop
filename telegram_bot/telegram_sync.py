@@ -1,12 +1,13 @@
-# bot.py
-
 import telegram
 import logging
+import os
 from django.conf import settings
 import asyncio
+import threading
 
 logger = logging.getLogger(__name__)
 
+# Асинхронная функция отправки сообщений и файлов в Telegram
 async def send_message_to_telegram_1(message, file=None):
     """Асинхронная функция отправки сообщений и файлов в Telegram."""
     async with telegram.Bot(token=settings.TOKEN) as bot:
@@ -21,6 +22,7 @@ async def send_message_to_telegram_1(message, file=None):
         except Exception as e:
             logger.error(f"Ошибка при отправке сообщения или файла: {e}")
 
+# Функция для отправки отчета в Telegram
 async def send_report_to_telegram_async(file_path):
     """
     Асинхронная отправка отчёта в Telegram.
@@ -47,3 +49,9 @@ async def send_report_to_telegram_async(file_path):
     except Exception as e:
         print(f"Ошибка при отправке отчёта в Telegram: {e}")
         logger.error(f"Ошибка при отправке отчёта в Telegram: {e}")
+
+# Функция для выполнения асинхронной задачи в потоке
+def send_report_in_thread(file_path):
+    loop = asyncio.new_event_loop()  # Создаём новый event loop для потока
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(send_report_to_telegram_async(file_path))
